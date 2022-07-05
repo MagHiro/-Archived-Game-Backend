@@ -7,6 +7,7 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Auth\Events\Registered;
 
 class AuthController extends Controller
 {
@@ -42,19 +43,14 @@ class AuthController extends Controller
         $credentials = $request->only('username', 'password');
 
         //if auth failed
-        if(!$token = JWTAuth::attempt($credentials)) {
+        if (!$token = JWTAuth::attempt($credentials)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Username atau Password Anda salah'
             ], 401);
         }
 
-        //if auth success
-        return response()->json([
-            'success' => true,
-            'user'    => auth()->user(),    
-            'token'   => $token   
-        ], 200);
+        return $this->respondWithToken($token);
     }
 
     public function register(request $request)
@@ -84,11 +80,13 @@ class AuthController extends Controller
             'password'  => bcrypt($request->password)
         ]);
 
+        event(new Registered($user));
+
         //return response JSON user is created
-        if($user) {
+        if ($user) {
             return response()->json([
                 'success' => true,
-                'user'    => $user,  
+                'user'    => $user,
             ], 201);
         }
 
@@ -98,6 +96,15 @@ class AuthController extends Controller
         ], 409);
     }
 
+    public function refresh()
+    {
+        return $this->respondWithToken(auth()->refresh());
+    }
+
+    public function me()
+    {
+        return response()->json(auth()->user());
+    }
 
     /**
      * Log the user out (Invalidate the token).
@@ -105,15 +112,15 @@ class AuthController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function logout()
-    {        
+    {
         //remove token
         $removeToken = JWTAuth::invalidate(JWTAuth::getToken());
 
-        if($removeToken) {
+        if ($removeToken) {
             //return response JSON
             return response()->json([
                 'success' => true,
-                'message' => 'Logout Berhasil!',  
+                'message' => 'Logout Berhasil!',
             ]);
         }
     }
@@ -135,10 +142,10 @@ class AuthController extends Controller
         $user->password = bcrypt($request['password']);
         $user->save();
         //return response JSON user is created
-        if($user) {
+        if ($user) {
             return response()->json([
                 'success' => true,
-                'user'    => $user,  
+                'user'    => $user,
             ], 201);
         }
 
@@ -146,5 +153,14 @@ class AuthController extends Controller
         return response()->json([
             'success' => false,
         ], 409);
+    }
+
+    protected function respondWithToken($token)
+    {
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => JWTAuth::factory()->getTTL() * 60
+        ]);
     }
 }

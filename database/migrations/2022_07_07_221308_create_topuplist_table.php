@@ -28,6 +28,6 @@ class Createtopup_listTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('topup_list');
     }
 }

@@ -25,7 +25,6 @@ class WebController extends Controller
         $order = new Midtrans;
         $order->username = $request->input('username');
         $order->product_id = $request->input('product_id');
-        $order->snap_token = $request->input('snap_token');
         $order->order_id = rand();
         $order->save();
 

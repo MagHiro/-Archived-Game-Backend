@@ -13,7 +13,7 @@ class CreateOrdersTable extends Migration
      */
     public function up()
     {
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create('midtrans', function (Blueprint $table) {
             $table->id();
             $table->string('username');
             $table->string('order_id');

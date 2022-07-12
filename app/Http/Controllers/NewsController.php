@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\News;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Str;
 
 class NewsController extends Controller
 {
@@ -13,6 +14,7 @@ class NewsController extends Controller
 
         $imagesName = [];
         $response = [];
+        $news = new News;
         
         $validator = Validator::make($request->all(),
             [
@@ -32,12 +34,12 @@ class NewsController extends Controller
                 $filename = time().rand(1, 10). '.'.$image->getClientOriginalExtension();
                 $image->move('uploads/', $filename);
 
-                $newNews = News::create([
-                    'judul' => $request->judul,
-                    'berita' => $request->berita,
-                    'image_name' => $filename
-                ]);
-                if($newNews){
+                $news->judul = $request->judul;
+                $news->berita = $request->berita;
+                $news->excerpt = Str::limit($request->berita, 100);
+                $news->image_name = $filename;
+
+                if($news->save()){
                     return response()->json(["status" => 200]);
                 }
             }
@@ -63,6 +65,7 @@ class NewsController extends Controller
     {
         
         $response = [];
+   
         
         $validator = Validator::make($request->all(),
             [

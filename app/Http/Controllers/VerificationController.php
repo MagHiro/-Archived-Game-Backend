@@ -7,7 +7,6 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use App\Models\User;
-use Illuminate\Support\Facades\Redirect;
 
 class VerificationController extends Controller
 {
@@ -17,13 +16,13 @@ class VerificationController extends Controller
         $user = User::find($request->route('id'));
 
         if ($user->hasVerifiedEmail()) {
-            return redirect()->away('http://localhost:3000/Verification');
+            return redirect()->away('https://cflegacy.000webhostapp.com/Verification');
         }
 
         if ($user->markEmailAsVerified()) {
             event(new Verified($user));
         }
 
-        return redirect()->away('localhost:3000/Verification');
+        return redirect()->away('https://cflegacy.000webhostapp.com/Verification');
     }
 }

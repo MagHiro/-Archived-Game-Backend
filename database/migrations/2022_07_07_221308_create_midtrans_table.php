@@ -15,7 +15,7 @@ class CreateMidTransTable extends Migration
     {
         Schema::create('midtrans', function (Blueprint $table) {
             $table->id();
-            $table->string('username');
+            $table->string('username')->nullable();
             $table->string('order_id');
             $table->string('product_id')->nullable();
             $table->string('status')->nullable();
